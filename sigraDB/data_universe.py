@@ -22,7 +22,7 @@ from simphony_osp.ontology.annotation import OntologyAnnotation
 
 from simphony_osp.session import Session, core_session
 
-
+# probably we dont need this now, but maybe for later!
 class StampModel(BaseModel):
     time: str
 
@@ -46,6 +46,7 @@ class data_universe:
         active: True if the dataspace is loaded, False otherwise.
         """
 
+        self.size = None
         self.lock = FileLock("universe.lock")
         self.universe_root = universe_root
         self.active = False
@@ -85,28 +86,14 @@ class data_universe:
         # Return an iterator to all the dataspaces (now .ttl files) in the universe (now a folder)
         return iter(self.data_spaces)
 
-    def _load_data_spaces_to_graph(self):
-        """
-        Create a new RDF graph to hold the data, meant for testing only, not user consumption
-
-        :return:
-        """
-        graph = Graph()
-        # Iterate over the .ttl files and parse them into the graph
-        for data_space_path in self.data_spaces:
-            graph.parse(data_space_path, format='ttl')
-        # Return the graph or store it as needed
-        return graph
-
     def activate(self):
         """
             Activate the data space
             in effect now it is loading it into the core session.
             TODO: separate to ABC and actual implementation
         """
-        # Iterate over the data spaces and initialise them into the session (loading/importing)
+        # Iterate over the data spaces and initialise them into the simphony core session (loading/importing)
         if not self.active:
-            print("activating........")
             for data_space in self.data_spaces:
                 import_file(data_space, all_triples=True)  # all triples needed to allow for extraneous dangling
                 # ontology,
@@ -118,26 +105,10 @@ class data_universe:
 
         return self.size
 
-    # TODO: add something to do query and then return the result, this would be enough for today
-
-    def _update_data_space_Graph(self, data_space, update_data):
-        """
-        # Acquire the global lock to prevent concurrent access hopefully!
-        This is for testing only.
-        """
-        with self._lock:
-            # Load the data space as a graph
-            graph = Graph()
-            graph.parse(data_space, format='ttl')
-
-            # Perform updates on the graph (you'll need to specify the exact update process)
-            # You could add, remove, or modify triples based on 'update_data'
-
-            # Save the updated graph back to the file
-            graph.serialize(destination=data_space, format='ttl')
-
     def update(self, data_space, update_data):
         """
+        Not implemented yet in this version.
+
         Take a proper data and use it to update an existing dataspace (file).
         """
         with self.lock:
@@ -150,32 +121,22 @@ class data_universe:
                 self.activate()
 
             # perform the update operation (add, delete, create, etc, )
+            # need to analise which operations are needed first and how they are expected to be used.
             # return status
             return self.size
 
     def sparql(self, the_query):
         """
-        Method to update the data spaces with provenance (using Git)
         :return: query result
-
-        TODO: ABC for query, then one which can take wither a sparql or other form (graphQL, or native) then we
-        create another meta query which activates any of them as needed.
-
         """
 
         with self.lock:
             """
-            this is stub
             result = sparql(query)
             """
-
             time_stamp = self.get_time()
             time.sleep(0) # useful to test the locking.
             res = self.sparql_query(the_query)
-            """print(res)
-            print(len(res))
-            res1=str(res.serialize(format="txt").decode('utf-8'))"""
-
             result = {"query": the_query, "time stamp": time_stamp, "size": len(res), "res": res}
         return result
 
@@ -185,22 +146,27 @@ class data_universe:
             """
             Perform any necessary clean-up, such as closing open files or releasing resources
             
-            call update if needed, check if a new version has somehow in the meantime been created, but normally we 
-            would update the provenance data, who accesses, and what they did, 
-            check the log is uptodaye. 
+            call update if needed, check if a new version has somehow in the meantime been created, 
+            but normally we would update the provenance data, who accesses, and what they did, 
+            and check the log is uptodaye. 
             
             clear data_spaces
             """
-
             self.data_spaces = []
-
+            core_session.clear() # TODO: check if we need special attention to access the session here!
+            self.active = False
     @staticmethod
     def get_time():
+        """
+        should be moved to utils...
+        :return:
+        """
         current_time = datetime.now().isoformat()
         return {"time": current_time}
 
     def sparql_query(self, query):
         """
+        could be static, but will do more later! (provenance)
         This is the sigradb own sparql wrapper, which takes the simphony one (which itself is
         built on rdfllib at the moment) and adds a layer for more json/python friendly output.
         :param query:

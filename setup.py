@@ -5,7 +5,7 @@ setup(
     version='0.1.0',
     description='A package for handling data universes and data spaces using RDF and simphony-Future Open Semantic '
                 'Platform (OSP)',
-    author='Adham Hashibon and the Data Driven Materials Discovery Group with the help of a mighty force ;-)',
+    author=';-)',
     author_email='a.hashibon@ucl.ac.uk',
     packages=find_packages(),
     install_requires=[
