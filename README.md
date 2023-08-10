@@ -1,4 +1,4 @@
-This version attempts to use a system wide file based lock which is probably simpler and safer that asyncio. 
+This version attempts to use a system wide file based lock which is probably simpler and safer?!!!! that asyncio for a start! 
 
 # sigraDB
 A new lightweight Ontological Semantic Graph Data Base  
