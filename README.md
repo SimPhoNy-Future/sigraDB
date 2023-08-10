@@ -1,3 +1,13 @@
+This is a testing version, 
+
+to run
+
+```
+uvicorn wsgi:app --reload
+```
+
+from the top level folder. 
+
 This version attempts to use a system wide file based lock which is probably simpler and safer?!!!! that asyncio for a start! 
 
 # sigraDB
