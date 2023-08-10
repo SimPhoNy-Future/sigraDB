@@ -1,0 +1,5 @@
+- [done] changed to file lock, and still need to test and integrate with teh app. 
+- test multiple query examples
+- adapt the res to the needs of semantic services..
+- test integration with the main app! 
+- test graph update? 
