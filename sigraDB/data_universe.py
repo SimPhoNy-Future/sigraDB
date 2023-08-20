@@ -128,6 +128,8 @@ class data_universe:
     def sparql(self, the_query):
         """
         :return: query result
+        This formats the query!
+
         """
 
         with self.lock:
@@ -137,7 +139,8 @@ class data_universe:
             time_stamp = self.get_time()
             time.sleep(0) # useful to test the locking.
             res = self.sparql_query(the_query)
-            result = {"query": the_query, "time stamp": time_stamp, "size": len(res), "res": res}
+            #result = {"query": the_query, "time stamp": time_stamp, "size": len(res), "res": res}
+            result=res
         return result
 
     def deactivate(self):
